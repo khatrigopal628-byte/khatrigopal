@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gopal Khatri – CV</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -23,9 +24,10 @@
       background: #e8e4dc;
       min-height: 100vh;
       display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      flex-direction: column;
+      align-items: center;
       padding: 40px 20px;
+      gap: 32px;
     }
 
     .cv-wrapper {
@@ -76,13 +78,11 @@
       border: 3px solid var(--accent);
       padding: 4px;
       margin: 0 auto 16px;
-      display: block;
-      position: relative;
-      overflow: hidden;
-      background: #3a3a58;
       display: flex;
       align-items: center;
       justify-content: center;
+      background: #3a3a58;
+      overflow: hidden;
     }
     .avatar-ring svg {
       width: 70px; height: 70px;
@@ -291,16 +291,114 @@
       margin-top: 2px;
     }
 
-    /* print */
+    /* WebGIS section */
+    .webgis-section {
+      width: 900px;
+      max-width: 100%;
+      background: var(--white);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+      padding: 36px 40px 40px;
+    }
+
+    .webgis-section .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      color: var(--dark);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .webgis-section .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e0ddd6;
+    }
+
+    .webgis-desc {
+      margin-bottom: 16px;
+      color: #666;
+      font-size: 0.85rem;
+    }
+
+    #map {
+      height: 450px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+
+    /* Leaflet info control */
+    .info {
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.92);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      min-width: 180px;
+    }
+    .info h4 {
+      margin: 0 0 5px;
+      color: #1a1a2e;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .info p { margin: 2px 0; color: #3d3d3d; }
+
+    /* Legend */
+    .legend {
+      background: rgba(255,255,255,0.92);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      line-height: 1.8;
+    }
+    .legend h4 {
+      margin: 0 0 6px;
+      color: #1a1a2e;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .legend i {
+      width: 16px;
+      height: 16px;
+      display: inline-block;
+      margin-right: 6px;
+      vertical-align: middle;
+      border-radius: 2px;
+    }
+
+    /* Loading overlay */
+    #map-loading {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #1a1a2e;
+      font-family: 'DM Sans', sans-serif;
+    }
+
     @media print {
       body { background: white; padding: 0; }
       .cv-wrapper { box-shadow: none; width: 100%; }
+      .webgis-section { display: none; }
     }
 
     @media (max-width: 680px) {
       .cv-wrapper { grid-template-columns: 1fr; }
       .left { order: 1; }
       .right { order: 2; padding: 28px 24px; }
+      .webgis-section { padding: 24px 20px; }
     }
   </style>
 </head>
@@ -312,8 +410,11 @@
   <aside class="left">
     <div class="profile-top">
       <div class="avatar-ring">
-  <img src="gopal.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
-</div>
+         <img src="gopal.jpg">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+        </svg>
+      </div>
       <h1>Gopal Khatri</h1>
       <div class="role">Government Surveyor</div>
     </div>
@@ -376,9 +477,9 @@
     <div class="right-header">
       <h2>Profile</h2>
       <p>
-        A qualified and dedicated Geomatics Engineer with expertise in land surveying, 
-        GIS analysis, and spatial data management. Serving as a Government Surveyor 
-        since 2075 BS, I bring precision, analytical thinking, and strong field 
+        A qualified and dedicated Geomatics Engineer with expertise in land surveying,
+        GIS analysis, and spatial data management. Serving as a Government Surveyor
+        since 2075 BS, I bring precision, analytical thinking, and strong field
         experience to every project, ensuring accurate and reliable geospatial outputs.
       </p>
     </div>
@@ -407,7 +508,7 @@
           <span class="edu-year">2083 BS</span>
           <div class="edu-info">
             <h3>BE in Geomatics Engineering</h3>
-            <p>Bachelor of Engineering – Tribhuvan University</p>
+            <p>Bachelor of Engineering – Kathmandu University</p>
           </div>
         </div>
         <div class="edu-item">
@@ -430,6 +531,20 @@
   </main>
 </div>
 
+<!-- Featured WebGIS Project -->
+<div class="webgis-section">
+  <div class="section-title">Featured WebGIS Project</div>
+  <p class="webgis-desc">
+    Interactive Nepal Districts Map — Population Density Choropleth using Leaflet.js and GeoJSON.
+    Hover over a district to see its name and population density (persons/km²). Click to zoom in.
+  </p>
+
+  <div style="position: relative;">
+    <div id="map-loading">Loading map data…</div>
+    <div id="map"></div>
+  </div>
+</div>
+
 <script>
   // Animate skill bars after page loads
   window.addEventListener('load', () => {
@@ -440,5 +555,177 @@
     }, 600);
   });
 </script>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+  // ── MAP SETUP ──
+  var map = L.map('map').setView([28.3949, 84.124], 7);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+    maxZoom: 18
+  }).addTo(map);
+
+  // ── POPULATION DENSITY COLOR SCALE ──
+  // Thresholds in persons/km² — adjust these to match your data's range
+  function getColor(d) {
+    return d === null || d === undefined ? '#cccccc'
+         : d > 2000  ? '#800026'
+         : d > 1000  ? '#BD0026'
+         : d > 500   ? '#E31A1C'
+         : d > 300   ? '#FC4E2A'
+         : d > 200   ? '#FD8D3C'
+         : d > 100   ? '#FEB24C'
+         : d > 50    ? '#FED976'
+         :             '#FFEDA0';
+  }
+
+  function style(feature) {
+    var density = feature.properties.POP_DN;
+    return {
+      fillColor: getColor(density),
+      weight: 1,
+      opacity: 1,
+      color: 'white',
+      dashArray: '3',
+      fillOpacity: 0.72
+    };
+  }
+
+  // ── INFO CONTROL ──
+  var info = L.control({ position: 'topright' });
+
+  info.onAdd = function () {
+    this._div = L.DomUtil.create('div', 'info');
+    this.update();
+    return this._div;
+  };
+
+  info.update = function (props) {
+    var name = props
+      ? (props.DISTRICT || props.district || props.NAME_3 || props.name || props.DISTRICT_1 || 'Unknown')
+      : null;
+
+    var density = props && (props.POP_DN !== undefined && props.POP_DN !== null)
+      ? props.POP_DN
+      : null;
+
+    this._div.innerHTML =
+      '<h4>Population Density</h4>' +
+      (props
+        ? '<p><strong>' + name + '</strong></p>' +
+          '<p>' +
+          (density !== null
+            ? '<strong>' + Number(density).toLocaleString() + '</strong> persons/km²'
+            : 'No data') +
+          '</p>' +
+          (props.Province || props.PROVINCE || props.NAME_1
+            ? '<p style="color:#999;font-size:11px;margin-top:3px;">' + (props.Province || props.PROVINCE || props.NAME_1) + '</p>'
+            : '')
+        : '<p>Hover over a district</p>');
+  };
+
+  info.addTo(map);
+
+  // ── HIGHLIGHT FUNCTIONS ──
+  var geojsonLayer;
+
+  function highlightFeature(e) {
+    var layer = e.target;
+    layer.setStyle({
+      weight: 3,
+      color: '#1a1a2e',
+      fillOpacity: 0.95,
+      dashArray: ''
+    });
+    layer.bringToFront();
+    info.update(layer.feature.properties);
+  }
+
+  function resetHighlight(e) {
+    geojsonLayer.resetStyle(e.target);
+    info.update();
+  }
+
+  function zoomToFeature(e) {
+    map.fitBounds(e.target.getBounds());
+  }
+
+  function onEachFeature(feature, layer) {
+    var name = feature.properties.DISTRICT
+      || feature.properties.district
+      || feature.properties.NAME_3
+      || feature.properties.name
+      || feature.properties.DISTRICT_1
+      || 'District';
+
+    var density = feature.properties.POP_DN;
+    var tooltipText = name + (density !== undefined && density !== null
+      ? '<br><span style="color:#555;font-size:11px;">' + Number(density).toLocaleString() + ' persons/km²</span>'
+      : '');
+
+    layer.bindTooltip(tooltipText, { sticky: true, className: 'district-tooltip' });
+
+    layer.on({
+      mouseover: highlightFeature,
+      mouseout: resetHighlight,
+      click: zoomToFeature
+    });
+  }
+
+  // ── LEGEND ──
+  function addLegend() {
+    var legend = L.control({ position: 'bottomright' });
+    legend.onAdd = function () {
+      var div = L.DomUtil.create('div', 'legend');
+      var grades = [0, 50, 100, 200, 300, 500, 1000, 2000];
+      var labels = [];
+
+      div.innerHTML = '<h4>Persons / km²</h4>';
+
+      for (var i = 0; i < grades.length; i++) {
+        labels.push(
+          '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+          grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] : '+')
+        );
+      }
+
+      div.innerHTML += labels.join('<br>');
+      return div;
+    };
+    legend.addTo(map);
+  }
+
+  // ── LOAD GEOJSON ──
+  fetch('districts.geojson')
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status + ' – file not found');
+      return r.json();
+    })
+    .then(function (data) {
+      document.getElementById('map-loading').style.display = 'none';
+
+      geojsonLayer = L.geoJson(data, {
+        style: style,
+        onEachFeature: onEachFeature
+      }).addTo(map);
+
+      map.fitBounds(geojsonLayer.getBounds());
+      addLegend();
+    })
+    .catch(function (err) {
+      console.error('GeoJSON load error:', err);
+      document.getElementById('map-loading').innerHTML =
+        '<div style="text-align:center; padding:20px;">' +
+        '<p style="font-size:1.1rem; margin-bottom:8px;">⚠️ Could not load <strong>districts.geojson</strong></p>' +
+        '<p style="font-size:0.82rem; color:#666;">Make sure both files are in the same folder:<br>' +
+        '<code style="background:#f0f0f0; padding:2px 6px; border-radius:3px;">D:\\WEBGis\\finalwebsite\\districts.geojson</code><br><br>' +
+        'Also open this page via a local server (e.g. VS Code Live Server),<br>not by double-clicking the HTML file directly.</p>' +
+        '</div>';
+    });
+
+</script>
+
 </body>
 </html>
